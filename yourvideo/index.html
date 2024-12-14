@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html amp lang="en">
+<html lang="en">
 
 <head>
   <title>YourUpload | Free and Simple Video Hosting</title>
   <meta charset="UTF-8">
   <link rel="canonical" href="$SOME_URL">
-  <link rel="icon" href="favicon.ico" sizes="16x16" type="image/x-icon">
+  <link rel="icon" href="favicon.ico" sizes="48x48" type="image/x-icon">
   <link rel="stylesheet" href="w3.css" type="text/css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -16,9 +16,25 @@
     iframe[name="form-action"] {
       border: none;
       height: 85px;
-      width: 520px;
       max-width: 520px;
       overflow: hidden;
+    }
+
+    video {
+      width: auto;
+      height: auto;
+      max-height: 480px;
+      max-width: 100%;
+    }
+
+    @media (max-height: 740px) {
+      .web-brand.w3-xxxlarge {
+        font-size: 36px !important;
+      }
+
+      hgroup h1 {
+        font-size: 30px;
+      }
     }
   </style>
 </head>
@@ -33,10 +49,12 @@
       <p>Get started without an account</p>
     </hgroup>
     <iframe class="w3-hide" name="form-action"></iframe><br>
+    <div class='w3-panel w3-green w3-hide' id='previewUploadStatus'>
+      <p>The file <span id="previewInputFileName"></span> has been uploaded.</p>
+    </div><br>
     <video class="w3-hide"
-           height='480'
            controls autoplay>
-      <source type='video/mp4'> Your browser does not support the video tag.
+      <source src="javascript:void(0)" type='video/mp4'> Your browser does not support the video tag.
     </video>
     <form action="upload.php"
           method="post"
@@ -54,17 +72,27 @@
   </main>
   <footer class="w3-container w3-padding-32 w3-small w3-center w3-display-bottommiddle w-100">
     <div class="powered">Powered by <a href="https://www.w3schools.com/w3css/4/w3.css">w3.css</a></div>
+    <div class="w3-panel" id="previewUpload">
+      <button class="w3-button w3-blue" onclick="previewVideo()" type="button">Preview Video</button>
+      <button class="w3-button w3-blue" onclick="previewShort()" type="button">Preview Short</button>
+      <button class="w3-button w3-red w3-bold" onclick="previewRemove()" type="button">Remove</button>
+    </div>
   </footer>
   <script>
     function clickInputFile() {
       const inputFile = document.getElementById("inputFile");
       inputFile.click();
     }
-    const hgroupTag = document.getElementsByTagName("hgroup")[0],
+    const mainTag = document.getElementsByTagName("main")[0],
+      hgroupTag = document.getElementsByTagName("hgroup")[0],
       iframeTag = document.getElementsByTagName("iframe")[0],
       videoTag = document.getElementsByTagName("video")[0],
       formTag = document.getElementsByTagName("form")[0],
-      inputFile = document.getElementById("inputFile");
+      inputFile = document.getElementById("inputFile"),
+      footerTag = document.getElementsByTagName("footer")[0];
+
+    const previewUploadStatus = document.getElementById("previewUploadStatus"),
+      previewInputFileName = document.getElementById("previewInputFileName");
 
     const videoSource = videoTag.getElementsByTagName("source")[0];
 
@@ -79,13 +107,51 @@
 
       videoSource.src = "uploads/" + inputFileName;
 
-      if (videoTag.readyState === 0 ||
-        videoTag.readyState === 1 ||
-        videoTag.readyState === 2 ||
-        videoTag.readyState === 3 ||
-        videoTag.readyState === 4) {
-        videoTag.load();
+      videoTag.load();
+
+      resizeMedia();
+    };
+
+    window.addEventListener("resize", resizeMedia);
+
+    function resizeMedia() {
+      if (window.matchMedia("(max-height: 420px)").matches &&
+        videoTag.classList.contains("w3-hide")) {
+        mainTag.classList.remove("w3-display-middle", "w-100");
+        footerTag.classList.remove("w3-display-bottommiddle", "w-100");
+      } else if (window.matchMedia("(max-height: 880px)").matches &&
+        !videoTag.classList.contains("w3-hide")) {
+        mainTag.classList.remove("w3-display-middle", "w-100");
+        footerTag.classList.remove("w3-display-bottommiddle", "w-100");
+      } else {
+        mainTag.classList.add("w3-display-middle", "w-100");
+        footerTag.classList.add("w3-display-bottommiddle", "w-100");
       }
+    }
+
+    function previewVideo() {
+      previewInputFileName.innerText = "hades.mp4";
+      firstBlockExec();
+      videoSource.src = "uploads/hades.mp4";
+      videoTag.load();
+    }
+
+    function previewShort() {
+      previewInputFileName.innerText = "hades-short.mp4";
+      firstBlockExec();
+      videoSource.src = "uploads/hades-short.mp4";
+      videoTag.load();
+    }
+
+    function previewRemove() {
+      previewUpload.remove();
+    }
+
+    function firstBlockExec() {
+      previewUploadStatus.classList.remove("w3-hide");
+      previewUploadStatus.classList.add("w3-show-inline-block");
+      hgroupTag.classList.add("w3-hide");
+      videoTag.classList.remove("w3-hide");
     }
   </script>
 </body>
